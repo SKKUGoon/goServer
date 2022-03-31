@@ -13,9 +13,9 @@ var upgrader = websocket.Upgrader{
 }
 
 var (
-	BackOfficeGroup = make(map[interface{}]bool)
-	MiddOfficeGroup = make(map[interface{}]bool)
-	FrntOfficeGroup = make(map[interface{}]bool)
+	BackOfficeGroup = make(map[*websocket.Conn]bool)
+	MiddOfficeGroup = make(map[*websocket.Conn]bool)
+	FrntOfficeGroup = make(map[*websocket.Conn]bool)
 )
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -44,18 +44,8 @@ func reader(conn *websocket.Conn) {
 		JsonRecv(conn)
 
 		// Send MessageRecv
-		r := MessageResp{
-			SignalType: "conn_resp",
-			Data: DataResp{
-				Status: "normal",
-				Msg:    "connection_normal",
-			},
-		}
-		log.Println(r)
-		err := conn.WriteJSON(r)
-		if err != nil {
-			log.Println(err)
-			return
+		for c := range BackOfficeGroup {
+			JsonResp(c)
 		}
 	}
 }

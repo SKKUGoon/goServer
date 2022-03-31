@@ -5,6 +5,8 @@ import (
 	"log"
 )
 
+// TODO: create struct
+
 func JsonRecv(conn *websocket.Conn) {
 	m := &MessageRecv{}
 
@@ -17,14 +19,33 @@ func JsonRecv(conn *websocket.Conn) {
 }
 
 func JsonResp(conn *websocket.Conn) {
-
+	r := MessageResp{
+		SignalType: "conn_resp",
+		Data: DataResp{
+			Status: "normal",
+			Msg:    "connection_normal",
+		},
+	}
+	err := conn.WriteJSON(r)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func sigHandle(s MessageRecv, conn *websocket.Conn) interface{} {
 	switch {
 	case s.SignalType == "init":
 		addClient(s, conn)
-	case s.SignalType == "trade":
+
+	case s.SignalType == "conn":
+		return nil
+
+	case s.SignalType == "spot_trade":
+		return nil
+	case s.SignalType == "spread_trade":
+		return nil
+	case s.SignalType == "test_trade":
 		return nil
 	}
 	return nil
