@@ -15,21 +15,28 @@ type ClientAction interface {
 	MsgRecv()
 	connResp()
 	tradeResp()
-	testResp()
 }
 
-func signalHandle(s MessageRecv, conn *websocket.Conn) {
+func signalHandle(s MessageRecv, cl Client) {
 	switch {
 	case s.SignalType == "init":
-		clientInit(s, conn)
+		clientInit(s, cl.Connect)
+
 	case s.SignalType == "conn":
 		fmt.Println("Signal conn")
+		cl.connResp()
+
 	case s.SignalType == "spot_trade":
 		fmt.Println("Signal spot trade")
+		cl.tradeResp(false)
+
 	case s.SignalType == "spread_trade":
 		fmt.Println("Signal spread trade")
+		cl.tradeResp(false)
+
 	case s.SignalType == "test_trade":
 		fmt.Println("Signal test_trade")
+		cl.tradeResp(true)
 	}
 }
 
@@ -54,7 +61,7 @@ func (c Client) MsgRecv() {
 	if err != nil {
 		log.Println(err)
 	} else {
-		signalHandle(*m, c.Connect)
+		signalHandle(*m, c)
 	}
 }
 
@@ -62,10 +69,11 @@ func (c Client) connResp() {
 	// Responding to conn heartbeat
 }
 
-func (c Client) tradeResp() {
+func (c Client) tradeResp(isTest bool) {
 	// Responding to trade messages
-}
-
-func (c Client) testResp() {
-	// Responding to test trade messages
+	if isTest == true {
+		fmt.Println("Test Signal")
+	} else {
+		fmt.Println("Real Trade Signal")
+	}
 }

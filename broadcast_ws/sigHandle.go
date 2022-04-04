@@ -12,7 +12,8 @@ func JsonRecv(conn *websocket.Conn) {
 
 	err := conn.ReadJSON(m)
 	if err != nil {
-		log.Println(err)
+		log.Println("disconnetion?", err)
+		return
 	} else {
 		sigHandle(*m, conn)
 	}
