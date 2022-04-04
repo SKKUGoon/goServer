@@ -1,4 +1,4 @@
-package broadcast
+package broadcast_ws
 
 import (
 	"fmt"

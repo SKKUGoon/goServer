@@ -1,14 +1,13 @@
 package main
 
 import (
-	"goServer/broadcast"
+	"goServer/broadcast_ws"
 	"log"
 	"net/http"
-	//"net/http"
 )
 
 func main() {
 	log.Println("Starting Trading Session:")
-	broadcast.SetupRoutes()
+	broadcast_ws.SetupRoutes()
 	log.Fatal(http.ListenAndServe(":7890", nil))
 }

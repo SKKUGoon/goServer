@@ -1,4 +1,4 @@
-package broadcast
+package broadcast_ws
 
 const CastBack0 = "[WS][v2] BackOfficeGroup >>> +1 Client"
 const CastBack1 = "[WS][v2] BackOfficeGroup >>> -1 Client"
