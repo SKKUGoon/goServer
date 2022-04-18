@@ -11,12 +11,6 @@ type Client struct {
 	MyOffice string
 }
 
-type ClientAction interface {
-	MsgRecv()
-	connResp()
-	tradeResp()
-}
-
 func signalHandle(s MessageRecv, cl Client) {
 	switch {
 	case s.SignalType == "init":
@@ -66,7 +60,11 @@ func (c Client) MsgRecv() {
 }
 
 func (c Client) connResp() {
-	// Responding to conn heartbeat
+	err := c.Connect.WriteJSON(MsgConnResp)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func (c Client) tradeResp(isTest bool) {
