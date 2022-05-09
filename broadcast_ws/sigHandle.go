@@ -15,7 +15,12 @@ func JsonRecv(conn *websocket.Conn) {
 		log.Println("disconnetion?", err)
 		return
 	} else {
-		sigHandle(*m, conn)
+		// Client is On board
+		cl := Client{
+			Connect:  conn,
+			MyOffice: m.Data.Dep,
+		}
+		signalHandle(*m, cl)
 	}
 }
 
