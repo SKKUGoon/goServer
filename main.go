@@ -8,6 +8,6 @@ import (
 
 func main() {
 	log.Println("Starting Trading Session:")
-	broadcast_ws.SetupRoutes()
+	http.HandleFunc("/wss", broadcast_ws.Echo)
 	log.Fatal(http.ListenAndServe(":7890", nil))
 }
