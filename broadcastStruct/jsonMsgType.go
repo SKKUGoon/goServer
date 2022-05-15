@@ -1,4 +1,4 @@
-package broadcast_struct
+package broadcastStruct
 
 type DataRecv struct {
 	Msg string `json:"msg"`

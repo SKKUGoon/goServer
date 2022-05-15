@@ -1,4 +1,4 @@
-package broadcast_struct
+package broadcastStruct
 
 var MsgConnResp = MessageResp{
 	SignalType: "conn_resp",
