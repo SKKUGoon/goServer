@@ -83,6 +83,8 @@ func (c *Client) writeOrder() {
 	for {
 		select {
 		case msg, ok := <-c.call:
+			fmt.Println("msgmsg", msg)
+			fmt.Println("ok", ok)
 			if !ok {
 				// the hub closed the channel
 				fmt.Println("the hub closed the channel")
