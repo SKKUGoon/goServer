@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"goServer/broadcastWS"
 	"log"
 	"net/http"
@@ -14,6 +15,10 @@ import (
 //}
 
 var addr = flag.String("addr", ":7890", "http service address")
+
+func init() {
+	fmt.Printf(broadcastWS.NewTradingSession)
+}
 
 func main() {
 	fl := broadcastWS.NewFloor()

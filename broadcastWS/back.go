@@ -1,7 +1,6 @@
 package broadcastWS
 
 import (
-	"fmt"
 	"net/http"
 
 	"log"
@@ -11,43 +10,9 @@ import (
 	"goServer/broadcastStruct"
 )
 
-func NewFloor() *TradeFloor {
-	return &TradeFloor{
-		traders:    make(map[*Client]bool),
-		orderInfo:  make(chan interface{}),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-	}
-}
-
-func (fl *TradeFloor) RunFloor() {
-	for {
-		select {
-		case client := <-fl.register:
-			fl.traders[client] = true
-		case client := <-fl.unregister:
-			if _, ok := fl.traders[client]; ok {
-				// if the client is in trader close it
-				// close client's message sending channel
-				delete(fl.traders, client)
-				close(client.call)
-			}
-		case message := <-fl.orderInfo:
-			for client := range fl.traders {
-				select {
-				case client.call <- message:
-				default:
-					close(client.call)
-					delete(fl.traders, client)
-				}
-			}
-		}
-	}
-}
-
 func (c *Client) readOrder() {
 	defer func() {
-		// to unregister
+		c.floor.unregister <- c
 		c.conn.Close()
 	}()
 
@@ -77,26 +42,33 @@ func (c *Client) writeOrder() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
+		c.floor.unregister <- c
 		c.conn.Close()
 	}()
 
 	for {
 		select {
-		case msg, ok := <-c.call:
-			fmt.Println("msgmsg", msg)
-			fmt.Println("ok", ok)
+		// message handle
+		case _, ok := <-c.call:
 			if !ok {
 				// the hub closed the channel
-				fmt.Println("the hub closed the channel")
+				err := c.conn.WriteJSON(broadcastStruct.ConnCloseMessage)
+				if err != nil {
+					log.Println(ServerAbruptEnd)
+				}
 				return
 			}
-			fmt.Println("ws", msg)
+
+			//orderHandle(msg)
 
 			err := c.conn.WriteJSON(broadcastStruct.TestMessage)
+			log.Println(ServerMsgHand)
 			if err != nil {
-				log.Println("sending error, wss", err)
+				log.Println(ServerSendingEnd)
 				return
 			}
+
+		// ping pong handle
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {

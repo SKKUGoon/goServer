@@ -15,3 +15,11 @@ var TestMessage = MessageResp{
 		Msg:    "connection normal from websocket",
 	},
 }
+
+var ConnCloseMessage = MessageResp{
+	SignalType: "conn_resp",
+	Data: DataResp{
+		Status: "closing",
+		Msg:    "connection closed, bye",
+	},
+}
