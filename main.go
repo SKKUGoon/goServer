@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"goServer/broadcastWS"
 	"log"
@@ -13,8 +12,6 @@ import (
 //	http.HandleFunc("/wss", broadcastWS.Echo)
 //	log.Fatal(http.ListenAndServe(":7890", nil))
 //}
-
-var addr = flag.String("addr", ":7890", "http service address")
 
 func init() {
 	fmt.Printf(broadcastWS.NewTradingSession)
