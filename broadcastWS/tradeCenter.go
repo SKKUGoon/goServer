@@ -43,8 +43,10 @@ func (fl *TradeFloor) RunFloor() {
 	for {
 		select {
 		case client := <-fl.register:
-			fmt.Println(ServerNewConnection)
 			fl.traders[client] = true
+			fmt.Println(ServerNewConnection)
+
+			fmt.Println(fl.traders)
 
 		case client := <-fl.unregister:
 			if _, ok := fl.traders[client]; ok {
@@ -55,6 +57,7 @@ func (fl *TradeFloor) RunFloor() {
 				delete(fl.traders, client)
 				close(client.call)
 			}
+			fmt.Println(fl.traders)
 
 		case message := <-fl.orderInfo:
 			fmt.Println(ServerMsgRecv, message)
@@ -65,10 +68,12 @@ func (fl *TradeFloor) RunFloor() {
 
 				// if fail: client is malfunctioning. delete client
 				default:
+					fmt.Println(TradingFloorMsgError)
 					close(client.call)
 					delete(fl.traders, client)
 				}
 			}
+			fmt.Println(fl.traders)
 		}
 	}
 }

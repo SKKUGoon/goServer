@@ -1,6 +1,7 @@
 package broadcastWS
 
 import (
+	"fmt"
 	"net/http"
 
 	"log"
@@ -16,20 +17,20 @@ func (c *Client) readOrder() {
 		c.conn.Close()
 	}()
 
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { return c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-
 	var msgContain *broadcastStruct.MessageRecv
 	for {
-		msgContain = &broadcastStruct.MessageRecv{}
-
 		// Read Sent JSON formatted string
+		msgContain = &broadcastStruct.MessageRecv{}
 		err := c.conn.ReadJSON(msgContain)
+		if err != nil {
+			log.Println(ClientJSONParseError, err)
+			break
+		}
 
 		// Capture disconnection event
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				log.Printf(ClientDisconnError, err)
 			}
 			break
 		}
@@ -49,7 +50,8 @@ func (c *Client) writeOrder() {
 	for {
 		select {
 		// message handle
-		case _, ok := <-c.call:
+		case m, ok := <-c.call:
+			fmt.Println("writeorder", m, ok)
 			if !ok {
 				// the hub closed the channel
 				err := c.conn.WriteJSON(broadcastStruct.ConnCloseMessage)
@@ -67,18 +69,11 @@ func (c *Client) writeOrder() {
 				log.Println(ServerSendingEnd)
 				return
 			}
-
-		// ping pong handle
-		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
-			}
 		}
 	}
 }
 
-func ServeWSS(f *TradeFloor, w http.ResponseWriter, r *http.Request) {
+func ServeWS(f *TradeFloor, w http.ResponseWriter, r *http.Request) {
 	// Upgrade HTTP connection to websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -86,6 +81,7 @@ func ServeWSS(f *TradeFloor, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Insert Upgraded HTTP connection(Websocket) into the TradingFloor
 	client := &Client{
 		floor: f,
 		conn:  ws,
