@@ -1,4 +1,4 @@
-https://img.shields.io/github/license/SKKUGoon/goServer
+![license](https://img.shields.io/github/license/SKKUGoon/goServer)
 
 
 
